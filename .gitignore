@@ -17,10 +17,33 @@
 *.map
 build/
 
-# Local secrets (e.g. WiFi/MQTT credentials)
+# .NET backend
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.db
+*.db-shm
+*.db-wal
+appsettings.*.local.json
+TestResults/
+
+# React frontend (Node)
+node_modules/
+dist/
+coverage/
+.vite/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local secrets (e.g. WiFi credentials)
 secrets.h
 *.env
 .env
+.env.local
+.env.*.local
 
 # OS / editor junk
 .DS_Store
