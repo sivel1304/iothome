@@ -2,6 +2,6 @@ namespace IotHomeAPI.Models;
 
 public class SensorPayload
 {
-    public int Temperature { get; set; }
-    public int Humidity { get; set; }
+    public required int Temperature { get; set; }
+    public required int Humidity { get; set; }
 }

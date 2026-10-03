@@ -26,8 +26,6 @@ public class MqttListenerService : BackgroundService
         var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
             .WithTopicFilter(f => f.WithTopic("viggo-home/#"))   // # = wildcard, all sensors/topics
             .Build();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
 
         mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
@@ -36,8 +34,11 @@ public class MqttListenerService : BackgroundService
 
             _logger.LogInformation("Received {Topic}: {Payload}", topic, payload);
 
-            var reading = JsonSerializer.Deserialize<SensorPayload>(payload, options);
-            if (reading is null) return;
+            if (!SensorPayloadParser.TryParse(payload, out var reading) || reading is null)
+            {
+                _logger.LogWarning("Ignoring unparsable payload on {Topic}: {Payload}", topic, payload);
+                return;
+            }
 
             if (!ReadingValidator.IsValid(reading.Temperature, reading.Humidity))
             {
