@@ -16,7 +16,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Run .NET tests
-        run: dotnet test backend.tests/IotHomeAPI.Tests.csproj --configuration Release
+        run: dotnet test backend/IotHomeAPI.Tests.csproj --configuration Release
 
   firmware-tests:
     runs-on: ubuntu-latest
