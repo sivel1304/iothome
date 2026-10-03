@@ -118,38 +118,27 @@ mqtt_task(void *pvParameters)
                     if ((system_get_time() - last_publish_time) > 5000000) // 5 seconds, in microseconds
                     {
                         int humidity = 0, temperature = 0;
-                        char temp_str[16];
-                        char hum_str[16];
+                        char payload[64];
 
                         if (dht11_read(&humidity, &temperature))
                         {
-                            snprintf(temp_str, sizeof(temp_str), "%d", temperature);
-                            snprintf(hum_str, sizeof(hum_str), "%d", humidity);
+                            snprintf(payload, sizeof(payload), "{\"temperature\":%d,\"humidity\":%d}", temperature, humidity);
                         }
                         else
                         {
-                            strcpy(temp_str, "N/A");
-                            strcpy(hum_str, "N/A");
+                            // If reading fails, we can set default values or skip publishing
+                            snprintf(payload, sizeof(payload), "{\"temperature\":null,\"humidity\":null}");
                         }
 
-                        MQTTMessage tempMessage = {
+                        MQTTMessage message = {
                             .qos = QOS1,
                             .retained = 0,
                             .dup = 0,
-                            .payload = temp_str,
-                            .payloadlen = strlen(temp_str),
+                            .payload = payload,
+                            .payloadlen = strlen(payload),
                         };
 
-                        MQTTMessage humMessage = {
-                            .qos = QOS1,
-                            .retained = 0,
-                            .dup = 0,
-                            .payload = hum_str,
-                            .payloadlen = strlen(hum_str),
-                        };
-
-                        MQTTPublish(&client, "viggo-home/sensor1/temp", &tempMessage);
-                        MQTTPublish(&client, "viggo-home/sensor1/humidity", &humMessage);
+                        MQTTPublish(&client, "viggo-home/dht11", &message);
 
                         last_publish_time = system_get_time();
                     }
