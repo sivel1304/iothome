@@ -122,12 +122,11 @@ mqtt_task(void *pvParameters)
 
                         if (dht11_read(&humidity, &temperature))
                         {
-                            snprintf(payload, sizeof(payload), "{\"temperature\":%d,\"humidity\":%d}", temperature, humidity);
+                            dht11_format_payload(humidity, temperature, payload, sizeof(payload));
                         }
                         else
                         {
-                            // If reading fails, we can set default values or skip publishing
-                            snprintf(payload, sizeof(payload), "{\"temperature\":null,\"humidity\":null}");
+                            snprintf(payload, sizeof(payload), "{\"error\":\"failed to read DHT11\"}");
                         }
 
                         MQTTMessage message = {

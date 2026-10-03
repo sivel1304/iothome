@@ -1,13 +1,8 @@
 using MQTTnet;
 using IotHomeAPI.Data;
 using IotHomeAPI.Models;
+using IotHomeAPI.Validation;
 using System.Text.Json;
-
-public class SensorPayload
-{
-    public int Temperature { get; set; }
-    public int Humidity { get; set; }
-}
 
 
 public class MqttListenerService : BackgroundService
@@ -43,6 +38,12 @@ public class MqttListenerService : BackgroundService
 
             var reading = JsonSerializer.Deserialize<SensorPayload>(payload, options);
             if (reading is null) return;
+
+            if (!ReadingValidator.IsValid(reading.Temperature, reading.Humidity))
+            {
+                _logger.LogWarning("Rejected out-of-range reading from {Topic}: {Payload}", topic, payload);
+                return;
+            }
 
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<IotHomeDbContext>();

@@ -7,6 +7,7 @@
 #include "gpio.h"
 #include "eagle_soc.h"
 #include <string.h>
+#include "dht_logic.h"
 
 
 #define DHT_GPIO        2

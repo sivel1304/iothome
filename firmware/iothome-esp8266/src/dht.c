@@ -83,7 +83,7 @@ bool dht11_read(int *humidity, int *temperature)
         data[i / 8] |= bit;
     }
 
-    uint8_t checksum = data[0] + data[1] + data[2] + data[3];
+    uint8_t checksum = dht11_checksum_ok(data);
     if (checksum != data[4]) {
         printf("DHT11: checksum failed (got %d, expected %d)\n", checksum, data[4]);
         return false;
@@ -91,6 +91,11 @@ bool dht11_read(int *humidity, int *temperature)
 
     *humidity = data[0];       // DHT11 has no decimal component, data[1] is always 0
     *temperature = data[2];    // data[3] is always 0 on DHT11
+
+    if(!dht11_values_in_range(*humidity, *temperature)) {
+        printf("DHT11: values out of range\n");
+        return false;
+    }
 
     return true;
 }
