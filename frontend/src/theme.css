@@ -1,0 +1,49 @@
+/* Iothome — Tailwind v4 theme. Usage: @import "tailwindcss"; @import "./theme.css"; */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;400;500&display=swap');
+
+@theme {
+  --color-bg: #0C0C0C;
+  --color-surface: #151615;
+  --color-edge: #242624;
+  --color-ink: #ECEDEC;
+
+  --color-accent: #70EE9C;
+  --color-accent-100: #EFFDF3;
+  --color-accent-200: #D5FBE1;
+  --color-accent-300: #B1F6C8;
+  --color-accent-400: #8FF2B1;
+  --color-accent-500: #70EE9C;
+  --color-accent-600: #52C47C;
+  --color-accent-700: #3B925B;
+  --color-accent-800: #28623E;
+  --color-accent-900: #173923;
+
+  --color-aqua: #3CC8C0;
+  --color-aqua-deep: #1A4A47;
+  --color-warn: #E9C46A;
+  --color-danger: #F0806E;
+
+  --color-neutral-300: #D3D5D3;
+  --color-neutral-400: #B3B6B3;
+  --color-neutral-500: #939693;
+  --color-neutral-600: #747774;
+  --color-neutral-700: #575A57;
+  --color-neutral-800: #373937;
+  --color-neutral-900: #222322;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+  --shadow-edge: 0 0 0 1px #242624;
+  --shadow-lift: 0 0 0 1px #575A57, 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-modal: 0 0 0 1px #939693, 0 16px 40px rgba(0,0,0,0.65);
+}
+
+@layer base {
+  body { @apply bg-bg text-ink font-sans antialiased; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  ::selection { background: var(--color-accent-800); color: var(--color-accent-100); }
+}

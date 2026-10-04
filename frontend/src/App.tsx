@@ -1,5 +1,5 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useReadings } from './useReadings'
+import { ModuleCard } from './components/ModuleCard'
 
 export default function App() {
   const { readings, error, toDate } = useReadings()
@@ -13,28 +13,39 @@ export default function App() {
   const latest = readings.at(-1)
 
   return (
-    <div style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>IoT Home</h1>
-      {error && <p style={{ color: 'crimson' }}>API error: {error}</p>}
+    <main className="mx-auto flex min-h-screen max-w-[1480px] flex-col gap-6 px-4 pb-16 pt-6 sm:px-10">
+      <header className="flex flex-wrap items-end justify-between gap-4 pb-3 pt-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="m-0 text-3xl font-normal leading-none tracking-[-0.07em]">IOTHOME</h1>
+          <div className="flex flex-wrap items-center gap-3 text-[13px] tabular-nums text-neutral-500">
+            <span className="flex items-center gap-1.5 text-accent-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
+              online
+            </span>
+            <span>
+              modules · measurements
+            </span>
+            {/* {low > 0 && (
+              <span className="flex items-center gap-1.5 text-warn">
+                <BatteryWarning size={15} /> {low} low battery
+              </span>
+            )} */}
+          </div>
+        </div>
+{/*         <SegmentedControl label="Sort modules" options={SORTS} value={sort} onChange={setSort} />
+ */}      </header>
 
-      {latest && (
-        <p>
-          Latest ({latest.sensorId}): {latest.temperature}°C, {latest.humidity}%
-        </p>
-      )}
+      <section className="grid grid-cols-[repeat(auto-fill,minmax(310px,1fr))] items-stretch gap-4">
+        <ModuleCard /* module={m} now={Date.now()} onOpen={() => {}}  *//>
+      </section>
 
-      <div style={{ height: 320 }}>
-        <ResponsiveContainer>
-          <LineChart data={data}>
-            <XAxis dataKey="time" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="temperature" stroke="#e4572e" dot={false} />
-            <Line type="monotone" dataKey="humidity" stroke="#2e86e4" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+      {/* {open && (
+        <div role="dialog" aria-modal="true" aria-label={open.name} onClick={() => setOpenId(null)} className="fixed inset-0 z-50 overflow-auto bg-black/60 p-3 backdrop-blur-sm">
+          <div onClick={(e) => e.stopPropagation()} className="mx-auto my-10 w-full max-w-[720px]">
+            <ModuleDetail module={open} now={now} onClose={() => setOpenId(null)} />
+          </div>
+        </div>
+      )} */}
+    </main>
   )
 }

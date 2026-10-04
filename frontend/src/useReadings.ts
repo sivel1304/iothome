@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react'
-
-export type DhtReading = {
-  sensorId: string
-  temperature: number
-  humidity: number
-  timestamp: string
-}
+import type { SensorModule } from './types'
+import type { DhtReading } from './types'
 
 const toDate = (ts: string) => new Date(ts.endsWith('Z') ? ts : ts + 'Z')
 
@@ -33,3 +28,4 @@ export function useReadings(limit = 50, intervalMs = 5000) {
 
   return { readings, error, toDate }
 }
+
