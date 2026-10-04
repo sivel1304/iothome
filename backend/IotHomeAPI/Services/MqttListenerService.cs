@@ -22,7 +22,7 @@ public class MqttListenerService : BackgroundService
         var mqttFactory = new MqttClientFactory();
 
         using var mqttClient = mqttFactory.CreateMqttClient();
-        var mqttClientOptions = new MqttClientOptionsBuilder().WithTcpServer("test.mosquitto.org", 1883).WithClientId($"iothome-api-{Guid.NewGuid():N}").Build();
+        var mqttClientOptions = new MqttClientOptionsBuilder().WithTcpServer("192.168.0.3", 1883).WithClientId($"iothome-api-{Guid.NewGuid():N}").Build();
         var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
             .WithTopicFilter(f => f.WithTopic("viggo-home/#"))   // # = wildcard, all sensors/topics
             .Build();
@@ -34,44 +34,51 @@ public class MqttListenerService : BackgroundService
 
             _logger.LogInformation("Received {Topic}: {Payload}", topic, payload);
 
-            if (!SensorPayloadParser.TryParse(payload, out var reading) || reading is null)
-            {
-                _logger.LogWarning("Ignoring unparsable payload on {Topic}: {Payload}", topic, payload);
-                return;
-            }
+            var parts = topic.Split('/');
+            string moduleId = parts.Length > 1 ? parts[1] : "unknown";
 
-            if (!ReadingValidator.IsValid(reading.Temperature, reading.Humidity))
+            if (!ModulePayloadParser.TryParse(payload, out var message) || message is null
+            || message.Readings.Count is 0 or > 20)
             {
-                _logger.LogWarning("Rejected out-of-range reading from {Topic}: {Payload}", topic, payload);
+                _logger.LogWarning("Ignoring invalid payload from {ModuleId}: {Payload}", moduleId, payload);
                 return;
             }
 
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<IotHomeDbContext>();
 
-            db.DhtReadings.Add(new DhtReading
+            DateTime now = DateTime.UtcNow;
+            
+
+            var module = await db.Modules.FindAsync(moduleId);
+            if (module is null)
             {
-                SensorId = topic,
-                Temperature = reading.Temperature,
-                Humidity = reading.Humidity,
-                Timestamp = DateTime.UtcNow
+                module = new Module { Id = moduleId, Name = moduleId };
+                db.Modules.Add(module);
+            }
+
+            module.IntervalMs = message.Interval;
+            module.LastSeen = now;
+
+            db.Measurements.Add(new Measurement
+            {
+                Module = module,
+                Timestamp = now,
+                Readings = message.Readings
+                    .Select(r => new Reading { Type = r.Type, Value = r.Value })
+                    .ToList()
             });
+
 
             await db.SaveChangesAsync();
         };
 
-        mqttClient.DisconnectedAsync += async e =>
+        // Reconnecting is left to the loop below, which also resubscribes
+        // (the broker drops subscriptions on disconnect with a clean session).
+        mqttClient.DisconnectedAsync += e =>
         {
             _logger.LogWarning("MQTT disconnected, retrying in 5s...");
-            await Task.Delay(5000, stoppingToken);
-            try
-            {
-                await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "MQTT reconnect failed");
-            }
+            return Task.CompletedTask;
         };
 
         while (!stoppingToken.IsCancellationRequested)
@@ -82,7 +89,7 @@ public class MqttListenerService : BackgroundService
                 {
                     await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
                     await mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);
-                    _logger.LogInformation("Connected and subscribed to viggo-home/+");
+                    _logger.LogInformation("Connected and subscribed to viggo-home/#");
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {

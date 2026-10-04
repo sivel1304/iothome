@@ -3,8 +3,10 @@ import { batteryTextColor, fmt, seriesColor, timeAgo, trend } from '../lib/forma
 import { AreaChart } from './AreaChart';
 import { MeasurementIcon } from './MeasurementIcon'; */
 import { ArrowUpRight } from '@phosphor-icons/react';
-import type { SensorModule } from '../types';
+import type { SensorModule, SensorReading } from '../types';
 import { BatteryIcon } from './BatteryIcon';
+import { usePolling } from '../usePolling'
+
 
 interface Props {
   readings: SensorModule;
@@ -12,8 +14,13 @@ interface Props {
   onOpen: (id: string) => void;
 }
 
-export function ModuleCard() {
+export function ModuleCard({ moduleId }: { moduleId: string }) {
   /* const battText = batteryTextColor(m.battery); */
+  const { data: sensorReading, error } = usePolling<SensorReading>(
+    `/latest-sensor-reading/${encodeURIComponent(moduleId)}`
+  )
+
+
   return (
     <article
       role="button"
@@ -35,6 +42,11 @@ export function ModuleCard() {
           <p className="m-0 text-xs text-neutral-500">
             {/* {m.sensor} · {m.address} · every {m.interval} */}
             m.sensor · m.address · every m.interval
+            {sensorReading?.readings.map((reading) => (
+              <p key={reading.id}>
+                {reading.type}: {reading.value}
+              </p>
+            ))}
           </p>
         </div>
         {/* <div className="flex flex-none items-center gap-1.5 text-xs tabular-nums" style={{ color: battText }}>

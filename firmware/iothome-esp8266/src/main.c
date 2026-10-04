@@ -9,8 +9,11 @@
 #include "MQTTESP8266.h"
 #include "MQTTClient.h"
 
-#define MQTT_HOST "test.mosquitto.org"
+#define MQTT_HOST "192.168.0.3"
 #define MQTT_PORT 1883
+
+#define INTERVAL_MS 5000
+#define MODULE_ID "dht-alrum"
 
 static xSemaphoreHandle wifi_alive;
 
@@ -92,7 +95,7 @@ mqtt_task(void *pvParameters)
 
             data.willFlag = 0;
             data.MQTTVersion = 3;
-            data.clientID.cstring = "esp8266-iothome";
+            data.clientID.cstring = MODULE_ID;
             data.username.cstring = MQTT_USER;
             data.password.cstring = MQTT_PASS;
             data.keepAliveInterval = 10;
@@ -104,7 +107,7 @@ mqtt_task(void *pvParameters)
             {
                 printf("ok.\n");
 
-                uint32_t last_publish_time = system_get_time() - 5000000; // force immediate first publish
+                uint32_t last_publish_time = system_get_time() - (INTERVAL_MS * 1000UL);   // immediate first publish
 
                 while (1)
                 {
@@ -115,14 +118,14 @@ mqtt_task(void *pvParameters)
                         break;
                     }
 
-                    if ((system_get_time() - last_publish_time) > 5000000) // 5 seconds, in microseconds
+                    if ((system_get_time() - last_publish_time) > (INTERVAL_MS * 1000UL))
                     {
                         int humidity = 0, temperature = 0;
                         char payload[64];
 
                         if (dht11_read(&humidity, &temperature))
                         {
-                            dht11_format_payload(humidity, temperature, payload, sizeof(payload));
+                            dht11_format_payload(payload, sizeof(payload), temperature, humidity, INTERVAL_MS);
                         }
                         else
                         {
@@ -137,7 +140,7 @@ mqtt_task(void *pvParameters)
                             .payloadlen = strlen(payload),
                         };
 
-                        MQTTPublish(&client, "viggo-home/dht11", &message);
+                        MQTTPublish(&client, "viggo-home/" MODULE_ID, &message);
 
                         last_publish_time = system_get_time();
                     }
@@ -145,7 +148,7 @@ mqtt_task(void *pvParameters)
             }
             else
             {
-                printf("failed.\n");
+                printf("failed (ret=%d).\n", ret);
             }
             DisconnectNetwork(&network);
         }
@@ -153,7 +156,7 @@ mqtt_task(void *pvParameters)
         {
             printf("failed.\n");
         }
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(5000 / portTICK_RATE_MS);
     }
 }
 

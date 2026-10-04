@@ -4,19 +4,26 @@ using IotHomeAPI.Validation;
 public class ReadingValidatorTests
 {
     [Theory]
-    [InlineData(22, 55)]   // typical
-    [InlineData(0, 20)]    // lower bounds
-    [InlineData(50, 90)]   // upper bounds
-    public void IsValid_ReturnsTrue_ForInRangeValues(int temp, int hum)
-        => Assert.True(ReadingValidator.IsValid(temp, hum));
+    [InlineData("temperature", 22)]   // typical
+    [InlineData("temperature", 0)]    // lower bound
+    [InlineData("temperature", 50)]   // upper bound
+    [InlineData("humidity", 20)]      // lower bound
+    [InlineData("humidity", 90)]      // upper bound
+    [InlineData("Temperature", 22)]   // type is case-insensitive
+    [InlineData("soil", 40)]          // unknown types are accepted
+    [InlineData("pressure", 1013.25)]
+    public void IsValid_ReturnsTrue_ForInRangeValues(string type, double value)
+        => Assert.True(ReadingValidator.IsValid(type, value));
 
     [Theory]
-    [InlineData(-1, 50)]   // temp too low
-    [InlineData(51, 50)]   // temp too high
-    [InlineData(25, 19)]   // humidity too low
-    [InlineData(25, 91)]   // humidity too high
-    [InlineData(0, 0)]     // the all-zeros garbage reading
-    [InlineData(255, 255)] // garbage from a bad bit decode
-    public void IsValid_ReturnsFalse_ForOutOfRangeValues(int temp, int hum)
-        => Assert.False(ReadingValidator.IsValid(temp, hum));
+    [InlineData("temperature", -1)]   // too low
+    [InlineData("temperature", 51)]   // too high
+    [InlineData("humidity", 19)]      // too low
+    [InlineData("humidity", 91)]      // too high
+    [InlineData("humidity", 0)]       // the all-zeros garbage reading
+    [InlineData("temperature", 255)]  // garbage from a bad bit decode
+    [InlineData("soil", double.NaN)]
+    [InlineData("soil", double.PositiveInfinity)]
+    public void IsValid_ReturnsFalse_ForOutOfRangeValues(string type, double value)
+        => Assert.False(ReadingValidator.IsValid(type, value));
 }

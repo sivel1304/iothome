@@ -7,5 +7,7 @@ public class IotHomeDbContext : DbContext
 {
     public IotHomeDbContext(DbContextOptions<IotHomeDbContext> options) : base(options) { }
 
-    public DbSet<DhtReading> DhtReadings => Set<DhtReading>();
+    public DbSet<Module> Modules => Set<Module>();
+    public DbSet<Measurement> Measurements => Set<Measurement>();
+
 }

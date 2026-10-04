@@ -1,5 +1,4 @@
-/* Iothome — Tailwind v4 theme. Usage: @import "tailwindcss"; @import "./theme.css"; */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;400;500&display=swap');
+
 
 @theme {
   --color-bg: #0C0C0C;

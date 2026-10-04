@@ -12,7 +12,7 @@ bool dht11_values_in_range(int humidity, int temperature)
            temperature >= 0 && temperature <= 50;
 }
 
-int dht11_format_payload(char *buf, size_t size, int temperature, int humidity)
+int dht11_format_payload(char *buf, size_t size, int temperature, int humidity, int interval)
 {
-    return snprintf(buf, size, "{\"temperature\":%d,\"humidity\":%d}", temperature, humidity);
+    return snprintf(buf, size, "{\"readings\":{\"temperature\":%d,\"humidity\":%d},\"interval\":%d}", temperature, humidity, interval);
 }

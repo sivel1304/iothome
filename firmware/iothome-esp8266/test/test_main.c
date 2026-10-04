@@ -41,8 +41,8 @@ void test_range_rejects_all_zeros(void)
 void test_payload_format(void)
 {
     char buf[64];
-    dht11_format_payload(buf, sizeof(buf), 25, 55);
-    TEST_ASSERT_EQUAL_STRING("{\"temperature\":25,\"humidity\":55}", buf);
+    dht11_format_payload(buf, sizeof(buf), 25, 55, 5000);
+    TEST_ASSERT_EQUAL_STRING("{\"readings\":{\"temperature\":25,\"humidity\":55},\"interval\":5000}", buf);
 }
 
 int main(void)
