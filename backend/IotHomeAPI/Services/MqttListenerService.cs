@@ -48,7 +48,7 @@ public class MqttListenerService : BackgroundService
             var db = scope.ServiceProvider.GetRequiredService<IotHomeDbContext>();
 
             DateTime now = DateTime.UtcNow;
-            
+
 
             var module = await db.Modules.FindAsync(moduleId);
             if (module is null)
@@ -65,7 +65,7 @@ public class MqttListenerService : BackgroundService
                 Module = module,
                 Timestamp = now,
                 Readings = message.Readings
-                    .Select(r => new Reading { Type = r.Type, Value = r.Value })
+                    .Select(kv => new Reading { Type = kv.Key, Value = kv.Value })
                     .ToList()
             });
 

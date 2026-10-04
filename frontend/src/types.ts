@@ -1,33 +1,18 @@
+export type Module = {
+  id: string
+  name: string | null
+  sensorType: string | null
+  intervalMs: number
+  lastSeen: string
+}
+
 export type ReadingValue = {
-  id: number
-  modulePayloadId: number
-  type: string          // "temperature", "humidity", ...
+  type: string      // "temperature", "humidity", "battery_voltage", "battery_level"
   value: number
 }
 
-export type SensorReading = {
-  id: number
+export type LatestMeasurement = {
   moduleId: string
-  interval: number      // ms between publishes
   timestamp: string
   readings: ReadingValue[]
-}
-
-export interface SensorModule {
-  id: string;
-  name?: string;
-  sensor?: string;
-  address?: string;
-  interval: string;
-  /** 0–100 */
-  battery?: number;
-  voltage?: number;
-  daysLeft: number;
-  rssi?: number;
-  firmware?: string;
-  uptime?: string;
-  online?: boolean;
-  /** Epoch ms of the last packet. */
-  updatedAt?: number;
-  readings: SensorReading[];
 }

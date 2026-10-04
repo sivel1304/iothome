@@ -15,12 +15,9 @@ public static class ModulePayloadParser
 
             if (parsed is null || parsed.Interval <= 0) return false;
 
-            // `required` only checks the key is present, so {"readings":null} would still get through
             if (parsed.Readings is null || parsed.Readings.Count is 0 or > 20) return false;
 
-            if (parsed.Readings.Any(r => r is null
-                                      || string.IsNullOrWhiteSpace(r.Type)
-                                      || r.Type.Length > 30))
+            if (parsed.Readings.Keys.Any(k => string.IsNullOrWhiteSpace(k) || k.Length > 30))
                 return false;
 
             message = parsed;

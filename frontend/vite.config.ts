@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/modules': { target: 'http://localhost:5195', changeOrigin: true },
-      '/latest-sensor-reading': { target: 'http://localhost:5195', changeOrigin: true },
+      '/latest-reading': { target: 'http://localhost:5195', changeOrigin: true },
     },
   },
 })

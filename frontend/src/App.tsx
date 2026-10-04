@@ -1,9 +1,10 @@
 import { ModuleCard } from './components/ModuleCard'
+import type { Module } from './types'
 import { usePolling } from './usePolling'
 
 
 export default function App() {
-  const { data: modules, error } = usePolling<string[]>('/modules', 30000)
+  const { data: modules, error } = usePolling<Module[]>('/modules', 30000)
 
   return (
     <main className="mx-auto flex min-h-screen max-w-[1480px] flex-col gap-6 px-4 pb-16 pt-6 sm:px-10">
@@ -30,7 +31,7 @@ export default function App() {
 
       <section className="grid grid-cols-[repeat(auto-fill,minmax(310px,1fr))] items-stretch gap-4">
         {modules?.map(m => (
-          <ModuleCard key={m} moduleId={m}/>
+          <ModuleCard key={m.id} module={m}/>
         ))}
       </section>
 
