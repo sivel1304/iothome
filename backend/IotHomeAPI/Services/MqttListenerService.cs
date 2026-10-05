@@ -3,17 +3,22 @@ using IotHomeAPI.Data;
 using IotHomeAPI.Models;
 using IotHomeAPI.Validation;
 using System.Text.Json;
+using Microsoft.AspNetCore.SignalR;
+using IotHomeAPI.Dtos;
 
+namespace IotHomeAPI.Services;
 
 public class MqttListenerService : BackgroundService
 {
     private readonly ILogger<MqttListenerService> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IHubContext<SensorHub> _hub;
 
-    public MqttListenerService(ILogger<MqttListenerService> logger, IServiceScopeFactory scopeFactory)
+    public MqttListenerService(ILogger<MqttListenerService> logger, IServiceScopeFactory scopeFactory, IHubContext<SensorHub> sensorHub)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
+        _hub = sensorHub;
 
     }
 
@@ -71,7 +76,13 @@ public class MqttListenerService : BackgroundService
 
 
             await db.SaveChangesAsync();
+            var readings = DerivedReadings.WithDerived(
+            message.Readings.Select(kv => new ReadingDto(kv.Key, kv.Value)));
+
+            await _hub.Clients.All.SendAsync("measurement",
+            new LatestMeasurementDto(moduleId, now, readings));
         };
+
 
         // Reconnecting is left to the loop below, which also resubscribes
         // (the broker drops subscriptions on disconnect with a clean session).

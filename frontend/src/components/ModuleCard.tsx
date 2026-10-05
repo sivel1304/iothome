@@ -5,22 +5,15 @@ import { MeasurementIcon } from './MeasurementIcon'; */
 import { ArrowUpRight } from '@phosphor-icons/react';
 /* import type { SensorModule, SensorReading } from '../types';
  */import { BatteryIcon } from './BatteryIcon';
-import { usePolling } from '../usePolling'
 import type { LatestMeasurement, Module } from '../types';
+import { useLatest } from '../useLatest';
 
 
-/* interface Props {
-  readings: SensorModule;
-  now: number;
-  onOpen: (id: string) => void;
-} */
 
 export function ModuleCard({ module }: { module: Module }) {
   /* const battText = batteryTextColor(m.battery); */
-  const { data: latestMeas, error } = usePolling<LatestMeasurement>(
-    `/latest-reading/${encodeURIComponent(module.id)}`
-  )
 
+  const { data: latestMeas, error } = useLatest(module.id)
 
   return (
     <article
@@ -50,38 +43,40 @@ export function ModuleCard({ module }: { module: Module }) {
           <span>{100}%</span>
         </div>
       </header>
-    
 
-      <section className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-            {/* <MeasurementIcon kind={x.kind} size={14} color={color} />
+      {latestMeas?.readings.map(reading => (
+        <section className="flex flex-col gap-2" >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+              {/* <MeasurementIcon kind={x.kind} size={14} color={color} />
                 {x.label} */}
-                {latestMeas?.readings.map(reading => (
-                    <p key={reading.type}>
+
+              <p key={reading.type}>
                 {reading.type}: {reading.value}
               </p>
-            ))}
 
-          
+            </div>
+            <div className="text-[11px] tabular-nums text-neutral-600">
+              {/* {fmt(x, Math.min(...h))}–{fmt(x, Math.max(...h))} {x.unit} */}
+            </div>
           </div>
-          <div className="text-[11px] tabular-nums text-neutral-600">
-            {/* {fmt(x, Math.min(...h))}–{fmt(x, Math.max(...h))} {x.unit} */}
-          </div>
-        </div>
-        <div className="flex items-baseline gap-1.5">
-          {/* <span className="text-[32px] font-medium leading-none tracking-[-0.02em] tabular-nums">{fmt(x, h[h.length - 1])}</span>
+          <div className="flex items-baseline gap-1.5">
+            {/* <span className="text-[32px] font-medium leading-none tracking-[-0.02em] tabular-nums">{fmt(x, h[h.length - 1])}</span>
               <span className="text-sm text-neutral-500">{x.unit}</span> */}
-          {/*               <span className="ml-auto text-[11px] tabular-nums text-neutral-500">{trend(x)} in 3 h</span>
+            {/*               <span className="ml-auto text-[11px] tabular-nums text-neutral-500">{trend(x)} in 3 h</span>
  */}            </div>
-        {/* <AreaChart values={h} color={color} minSpan={x.minSpan} height={56} /> */}
-        <div className="flex justify-between text-[10px] text-neutral-700">
-          <span>−3 h</span>
-          <span>now</span>
-        </div>
-      </section>
+          {/* <AreaChart values={h} color={color} minSpan={x.minSpan} height={56} /> */}
+          <div className="flex justify-between text-[10px] text-neutral-700" >
+            <span>−3 h</span>
+            <span>now</span>
+          </div>
+        </section >
+      ))
+      }
 
-      <footer className="mt-auto flex items-center justify-between gap-3 text-[11px] tabular-nums text-neutral-500">
+      
+
+  <footer className="mt-auto flex items-center justify-between gap-3 text-[11px] tabular-nums text-neutral-500">
         {/* <span>
           Updated {timeAgo(m.updatedAt, now)} · <span style={{ color: battText }}>~{m.daysLeft} days left</span>
         </span>
@@ -96,6 +91,6 @@ export function ModuleCard({ module }: { module: Module }) {
           Details <ArrowUpRight size={12} />
         </span>
       </footer>
-    </article>
+    </article >
   );
 }

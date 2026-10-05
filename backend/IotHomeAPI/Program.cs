@@ -1,6 +1,7 @@
 using IotHomeAPI.Data;
 using IotHomeAPI.Dtos;
 using Microsoft.EntityFrameworkCore;
+using IotHomeAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<IotHomeDbContext>(options =>
     options.UseSqlite("Data Source=iothome.db"));
-builder.Services.AddHostedService<MqttListenerService>();
+    builder.Services.AddSignalR();
+    builder.Services.AddHostedService<MqttListenerService>();
 
 var app = builder.Build();
+
+app.MapHub<SensorHub>("/hubs/sensors");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -20,6 +24,7 @@ if (app.Environment.IsDevelopment())
     // Swagger UI at /swagger, reading the built-in OpenAPI document
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "IotHome API"));
 }
+
 
 app.UseHttpsRedirection();
 

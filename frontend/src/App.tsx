@@ -1,10 +1,10 @@
 import { ModuleCard } from './components/ModuleCard'
 import type { Module } from './types'
-import { usePolling } from './usePolling'
+import { useModules } from './useModlues'
 
 
 export default function App() {
-  const { data: modules, error } = usePolling<Module[]>('/modules', 30000)
+  const { modules, error } = useModules()
 
   return (
     <main className="mx-auto flex min-h-screen max-w-[1480px] flex-col gap-6 px-4 pb-16 pt-6 sm:px-10">
