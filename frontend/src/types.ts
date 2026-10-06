@@ -17,3 +17,10 @@ export type LatestMeasurement = {
   readings: ReadingValue[]
 }
 
+export type HistoryMeasurement = {
+  timestamp: string
+  readings: ReadingValue[]
+}
+
+// One row per measurement: { timestamp: 1760000000000, temperature: 22, humidity: 47 }
+export type HistoryRow = { timestamp: number; [type: string]: number }

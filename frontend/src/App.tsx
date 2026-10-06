@@ -10,7 +10,7 @@ export default function App() {
     <main className="mx-auto flex min-h-screen max-w-[1480px] flex-col gap-6 px-4 pb-16 pt-6 sm:px-10">
       <header className="flex flex-wrap items-end justify-between gap-4 pb-3 pt-6">
         <div className="flex flex-col gap-2">
-          <h1 className="m-0 text-3xl font-normal leading-none tracking-[-0.07em]">IOTHOME</h1>
+          <h1 className="m-0 text-3xl font-light  leading-none tracking-[-0.07em]">IOTHOME</h1>
           <div className="flex flex-wrap items-center gap-3 text-[13px] tabular-nums text-neutral-500">
             <span className="flex items-center gap-1.5 text-accent-300">
               <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />

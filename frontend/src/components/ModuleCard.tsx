@@ -5,17 +5,26 @@ import { AreaChart } from './AreaChart';
 import { ArrowUpRight } from '@phosphor-icons/react';
 /* import type { SensorModule, SensorReading } from '../types';
  */import { BatteryIcon } from './BatteryIcon';
-import type { LatestMeasurement, Module } from '../types';
+import type { Module } from '../types';
 import { useLatest } from '../useLatest';
 import { MeasurementIcon } from './MeasurementIcon';
 import HistoryChart from './HistoryChart';
+import { useHistory } from '../useHistory';
+import { seriesStats } from '../stats';
+
 
 
 
 export function ModuleCard({ module }: { module: Module }) {
   /* const battText = batteryTextColor(m.battery); */
 
+  const HOURS = 3
+  const { rows, loading, error: historyError } = useHistory(module.id, HOURS)
+
   const { data: latestMeas, error } = useLatest(module.id)
+
+
+
 
   return (
     <article
@@ -53,34 +62,48 @@ export function ModuleCard({ module }: { module: Module }) {
         </div>
       </header>
 
-      {latestMeas?.readings.map(reading => (
-        <section className="flex flex-col gap-2" >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-neutral-400 capitalize">
-              <MeasurementIcon kind={reading.type} size={14} color={"var(--color-accent)"} />
-                {reading.type} 
+      {latestMeas?.readings.map(reading => {
+        const stats = seriesStats(rows, reading.type)
+        return (
+          <section key={reading.type} className="flex flex-col gap-2" >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-neutral-400 capitalize">
+                <MeasurementIcon kind={reading.type} size={14} color={"var(--color-accent)"} />
+                {reading.type}
+              </div>
+              <div className="text-[11px] tabular-nums text-neutral-600">
+                {stats && `${stats.min}–${stats.max} ${"unit"}`}
+              </div>
             </div>
-            <div className="text-[11px] tabular-nums text-neutral-600">
-              {/* {fmt(x, Math.min(...h))}–{fmt(x, Math.max(...h))} {x.unit} */}
-            </div>
-          </div>
-           <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5">
               <span className="text-[32px] font-medium leading-none tracking-[-0.02em] tabular-nums">{reading.value}</span>
               <span className="text-sm text-neutral-500">unit</span>
-              <span className="ml-auto text-[11px] tabular-nums text-neutral-500">? in 3 h</span>
+              {stats && (
+                <span className="ml-auto text-[11px] tabular-nums text-neutral-500">
+                  {stats.delta > 0 ? '+' : ''}{stats.delta} in {HOURS} h
+                </span>
+              )}
             </div>
-          { HistoryChart(/* { moduleId: module.id, type: reading.type, hours: 3 } */) }
-          <div className="flex justify-between text-[10px] text-neutral-700" >
-            <span>−3 h</span>
-            <span>now</span>
-          </div>
-        </section >
-      ))
-      }
+            {
+              <HistoryChart
+                rows={rows}
+                type={reading.type}
+                stats={stats}
+                loading={loading}
+                error={historyError}
+              />
+            }
+            <div className="flex justify-between text-[10px] text-neutral-700" >
+              <span>−{HOURS} h</span>
+              <span>now</span>
+            </div>
+          </section >
+        )
+      })}
 
-      
 
-  <footer className="mt-auto flex items-center justify-between gap-3 text-[11px] tabular-nums text-neutral-500">
+
+      <footer className="mt-auto flex items-center justify-between gap-3 text-[11px] tabular-nums text-neutral-500">
         {/* <span>
           Updated {timeAgo(m.updatedAt, now)} · <span style={{ color: battText }}>~{m.daysLeft} days left</span>
         </span>
