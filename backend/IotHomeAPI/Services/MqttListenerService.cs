@@ -58,7 +58,8 @@ public class MqttListenerService : BackgroundService
             var module = await db.Modules.FindAsync(moduleId);
             if (module is null)
             {
-                module = new Module { Id = moduleId, Name = moduleId };
+                var idParts = moduleId.Split('-');
+                module = new Module { Id = moduleId, Name = idParts[1], SensorType = idParts[0] };
                 db.Modules.Add(module);
             }
 

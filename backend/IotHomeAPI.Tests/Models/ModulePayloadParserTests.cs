@@ -1,12 +1,12 @@
 using IotHomeAPI.Models;
 using Xunit;
 
-public class SensorPayloadParserTests
+public class ModulePayloadParserTests
 {
     [Fact]
     public void ValidPayload_IsParsed()
     {
-        bool ok = SensorPayloadParser.TryParse("""{"readings":{"temperature":22,"humidity":55},"interval":10}""", out var p);
+        bool ok = ModulePayloadParser.TryParse("""{"readings":{"temperature":22,"humidity":55},"interval":10}""", out var p);
 
         Assert.True(ok);
         Assert.Equal(22, p!.Readings["temperature"]);
@@ -18,7 +18,7 @@ public class SensorPayloadParserTests
     public void AnyMeasurementType_IsAccepted()
     {
         // new sensors only need a new key, no backend change
-        bool ok = SensorPayloadParser.TryParse("""{"readings":{"soil":40,"pressure":1013.25},"interval":60}""", out var p);
+        bool ok = ModulePayloadParser.TryParse("""{"readings":{"soil":40,"pressure":1013.25},"interval":60}""", out var p);
 
         Assert.True(ok);
         Assert.Equal(40, p!.Readings["soil"]);
@@ -28,14 +28,14 @@ public class SensorPayloadParserTests
     [Fact]
     public void FieldNames_AreCaseInsensitive()
     {
-        Assert.True(SensorPayloadParser.TryParse("""{"Readings":{"temperature":22},"INTERVAL":10}""", out _));
+        Assert.True(ModulePayloadParser.TryParse("""{"Readings":{"temperature":22},"INTERVAL":10}""", out _));
     }
 
     [Fact]
     public void ExtraFields_AreIgnored()
     {
         // lets you add e.g. battery voltage to the firmware before the backend knows about it
-        Assert.True(SensorPayloadParser.TryParse("""{"readings":{"temperature":22},"interval":10,"battery":3.9}""", out _));
+        Assert.True(ModulePayloadParser.TryParse("""{"readings":{"temperature":22},"interval":10,"battery":3.9}""", out _));
     }
 
     [Theory]
@@ -56,7 +56,7 @@ public class SensorPayloadParserTests
     [InlineData("[]")]
     public void BadPayload_ReturnsFalse_AndDoesNotThrow(string json)
     {
-        bool ok = SensorPayloadParser.TryParse(json, out var p);
+        bool ok = ModulePayloadParser.TryParse(json, out var p);
 
         Assert.False(ok);
         Assert.Null(p);

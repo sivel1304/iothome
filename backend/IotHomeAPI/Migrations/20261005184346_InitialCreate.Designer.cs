@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IotHomeAPI.Migrations
 {
     [DbContext(typeof(IotHomeDbContext))]
-    [Migration("20261004183359_InitialCreate")]
+    [Migration("20261005184346_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

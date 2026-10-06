@@ -56,4 +56,25 @@ app.MapGet("/modules", async (IotHomeDbContext db) =>
 })
 .WithName("GetModules");
 
+app.MapGet("/modules/{moduleId}/history", async (string moduleId, int? hours, IotHomeDbContext db) =>
+{
+    if (!await db.Modules.AnyAsync(m => m.Id == moduleId))
+        return Results.NotFound();
+
+    int h = Math.Clamp(hours ?? 3, 1, 168);          // default 3 hours, max 7 days
+    var since = DateTime.UtcNow.AddHours(-h);
+
+    var measurements = await db.Measurements
+        .AsNoTracking()
+        .Where(m => m.ModuleId == moduleId && m.Timestamp >= since)
+        .OrderBy(m => m.Timestamp)
+        .Select(m => new MeasurementDto(
+            m.Timestamp,
+            m.Readings.Select(r => new ReadingDto(r.Type, r.Value)).ToList()))
+        .ToListAsync();
+
+    return Results.Ok(measurements);
+})
+.WithName("GetModuleHistory");
+
 app.Run();

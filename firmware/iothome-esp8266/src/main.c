@@ -13,7 +13,7 @@
 #define MQTT_PORT 1883
 
 #define INTERVAL_MS 5000
-#define MODULE_ID "dht-alrum"
+#define MODULE_ID "dht11-alrum"
 
 static xSemaphoreHandle wifi_alive;
 

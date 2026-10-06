@@ -16,3 +16,4 @@ export type LatestMeasurement = {
   timestamp: string
   readings: ReadingValue[]
 }
+

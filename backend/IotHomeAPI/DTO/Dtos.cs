@@ -12,3 +12,5 @@ public record LatestMeasurementDto(
     string ModuleId,
     DateTime Timestamp,
     List<ReadingDto> Readings);
+
+public record MeasurementDto(DateTime Timestamp, List<ReadingDto> Readings);
